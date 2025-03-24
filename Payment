@@ -1,0 +1,144 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Payment {
+protected:
+    int id;
+    double amount;
+    string date;
+    string status;
+public:
+    virtual void inputDetails() = 0;
+    virtual void processPayment() = 0;
+    virtual bool validatePayment() = 0;
+    virtual void refundPayment() = 0;
+    virtual ~Payment() {}
+};
+
+class CreditCardPayment : public Payment {
+private:
+    string cardNumber;
+    string cardHolder;
+    string expiryDate;
+    string cvv;
+public:
+    void inputDetails() override {
+        cout << "\nMasukkan nomor kartu kredit: ";
+        cin >> cardNumber;
+        cout << "Masukkan nama pemegang kartu: ";
+        cin.ignore();
+        getline(cin, cardHolder);
+        cout << "Masukkan tanggal kadaluarsa (MM/YY): ";
+        cin >> expiryDate;
+        cout << "Masukkan CVV: ";
+        cin >> cvv;
+    }
+    bool validatePayment() override {
+        return !cardNumber.empty() && !cvv.empty();
+    }
+    void processPayment() override {
+        if (validatePayment()) {
+            cout << "\nPembayaran dengan kartu kredit berhasil diproses!\n";
+        } else {
+            cout << "\nValidasi kartu kredit gagal!\n";
+        }
+    }
+    void refundPayment() override {
+        cout << "\nPengembalian dana ke kartu kredit berhasil diproses!\n";
+    }
+};
+
+class DigitalWalletPayment : public Payment {
+private:
+    string walletID;
+    string provider;
+    string phoneNumber;
+public:
+    void inputDetails() override {
+        cout << "\nMasukkan nama penyedia e-Wallet: ";
+        cin >> provider;
+        cout << "Masukkan ID e-Wallet: ";
+        cin >> walletID;
+        cout << "Masukkan nomor telepon: ";
+        cin >> phoneNumber;
+    }
+    bool validatePayment() override {
+        return !walletID.empty() && !phoneNumber.empty();
+    }
+    void processPayment() override {
+        if (validatePayment()) {
+            cout << "\nPembayaran dengan e-Wallet berhasil diproses!\n";
+        } else {
+            cout << "\nValidasi e-Wallet gagal!\n";
+        }
+    }
+    void refundPayment() override {
+        cout << "\nPengembalian dana ke e-Wallet berhasil diproses!\n";
+    }
+};
+
+class BankTransferPayment : public Payment {
+private:
+    string bankName;
+    string accountNumber;
+    string transferCode;
+public:
+    void inputDetails() override {
+        cout << "\nMasukkan nama bank: ";
+        cin >> bankName;
+        cout << "Masukkan nomor rekening: ";
+        cin >> accountNumber;
+        cout << "Masukkan kode transfer: ";
+        cin >> transferCode;
+    }
+    bool validatePayment() override {
+        return !accountNumber.empty() && !transferCode.empty();
+    }
+    void processPayment() override {
+        if (validatePayment()) {
+            cout << "\nTransfer bank berhasil diproses!\n";
+        } else {
+            cout << "\nValidasi transfer bank gagal!\n";
+        }
+    }
+    void refundPayment() override {
+        cout << "\nPengembalian dana ke rekening berhasil diproses!\n";
+    }
+};
+
+int main() {
+    int choice;
+    char refundChoice;
+    Payment* payment = nullptr;
+
+    cout << "\nPilih metode pembayaran:\n";
+    cout << "1. Kartu Kredit\n2. e-Wallet\n3. Transfer Bank\nPilihan: ";
+    cin >> choice;
+
+    if (choice == 1) {
+        payment = new CreditCardPayment();
+    } else if (choice == 2) {
+        payment = new DigitalWalletPayment();
+    } else if (choice == 3) {
+        payment = new BankTransferPayment();
+    } else {
+        cout << "Pilihan tidak valid!\n";
+        return 1;
+    }
+
+    payment->inputDetails();
+    payment->processPayment();
+
+    cout << "\nApakah ingin melakukan refund? (y/n): ";
+    cin >> refundChoice;
+
+    if (refundChoice == 'y' || refundChoice == 'Y') {
+        payment->refundPayment();
+    } else {
+        cout << "\nTransaksi selesai tanpa refund.\n";
+    }
+
+    delete payment;
+    return 0;
+}
